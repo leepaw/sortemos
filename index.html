@@ -119,8 +119,32 @@
                 cashier_endtime = cells[2];
                 cashier_assignment = cells[3];
 
-                if (cashier_name == "" || 
-                            cashier_starttime === undefined ||
+                //
+                // Skip to the next iteration, this just means that the row
+                // in the CSV file is empty, i.e. the user entered an empty
+                // row in Excel
+                //
+                if (cashier_name == "" &&
+                        cashier_starttime == "" &&
+                        cashier_endtime == "") {
+                    continue;
+                        }
+                //
+                // If a cashier's name is provided, but at least one
+                // of the times (start time or end time) is empty, we
+                // disregard this entry and skip to the next iteration
+                //
+                if ((cashier_name != "") && 
+                        (cashier_starttime == "" ||
+                         cashier_endtime == "")) {
+                    continue;
+                         }
+
+                //
+                // Reached the end of the file, so break out of the loop
+                //
+                if (cashier_name == "" &&
+                            cashier_starttime === undefined &&
                             cashier_endtime === undefined) {
                     break;
                 }
@@ -452,6 +476,12 @@
             var res_ = foo.slice(0,-2) +":"+foo.slice(-2);
             return res_;
         }
+
+        function removeColon(input) {
+            var foo = input;
+            var res_ = foo.replace(":", "");
+            return res_;
+        }
     
 
         function toStandardFormat(input) {
@@ -538,31 +568,52 @@
                 // Remove "AM/PM"
                 cells[0] = cells[0].split(" ")[0];
 
-                // Get the current hour
+                // Get the current hour and minutes
                 var curr_hour = cells[0].split(":")[0];
+                var curr_mins = cells[0].split(":")[1];
                 
                 var next_hour;
 
+                // this is the final event
                 if ((i+1) == data.length) {
                     next_hour = curr_hour;
                 }else {
-                    // if this isn't the final event, peek into the next event's hour
+                    // this isn't the final event, so peek into the next event's hour
                     next_hour = data[i+1].join(",").split(",")[0].split(":")[0];
                 }
 
-                // create borders that encapsulates events with the same hour
+                //cells[0] = removeColon(cells[0]);
+
+                // this event is the last one before the hour changes, so create
+                // a bottom border
                 if (curr_hour != next_hour) {
                     for(let j=0;j<cells.length;j++){
                         //table+= "<td style='border-bottom: solid 1px #DDD; border-collapse: collapse;'>";
                         table+= "<td style='border-bottom: solid 1px black; border-collapse: collapse;'>";
-                        table+= cells[j];
+                        if (j==0) {
+                            table+= curr_hour;
+                            table+= "<sup>";
+                            table+= curr_mins;
+                            table+= "</sup>";
+                        }else {
+                            table+= cells[j];
+                        }
                         table+= "</td>";
                     }   
                 }
+                // there's more subsequent events with the same hour as this one,
+                // so no need for a border
                 else {
                     for(let m=0;m<cells.length;m++){
                         table+= "<td>";
-                        table+= cells[m];
+                        if (m==0) {
+                            table+= curr_hour;
+                            table+= "<sup>";
+                            table+= curr_mins;
+                            table+= "</sup>";
+                        }else {
+                            table+= cells[m];
+                        }
                         table+= "</td>";
                     }
                 }
@@ -587,6 +638,7 @@
                 style = style + "table, th {border: solid 1px black; border-collapse: collapse;";
                 style = style + "padding: 12px 10px;text-align: center;}";
                 style = style + "td {padding: 12px 10px;text-align: center;}";
+                style = style + "sup {font-size: .83em; vertical-align: 0.25em; line-height: 0;}";
                 style = style + "</style>";
 
                 // Create a window object
