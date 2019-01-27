@@ -163,9 +163,9 @@
                             // precedence over a "lunch" or "break" with 
                             // the same time
                             // 
-                            if (new_event[1]=="Home" &&
-                                      (all_events[j][1]=="Break" ||
-                                       all_events[j][1]=="Lunch")) {
+                            if (new_event[1]=="H" &&
+                                      (all_events[j][1]=="B" ||
+                                       all_events[j][1]=="LL")) {
                                 all_events.splice(j, 0, new_event);
                                 datetime_idx.splice(j, 0, curr_datetime);
                                 break;
@@ -175,10 +175,10 @@
                             // take precedence over any 'Go Home' with
                             // the same time
                             //
-                            if ((new_event[1]=="Home" && 
+                            if ((new_event[1]=="H" && 
                                             (contains(new_event[2], '$')
                                             || contains(new_event[2], '#'))) &&
-                                                all_events[j][1]=="Home") {
+                                                all_events[j][1]=="H") {
                                 all_events.splice(j, 0, new_event);
                                 datetime_idx.splice(j, 0, curr_datetime);
                                 break;
@@ -258,9 +258,9 @@
                     cashier_events.datetime.push(break1_datetime);
                     cashier_events.datetime.push(lunch_datetime);
                     cashier_events.datetime.push(break2_datetime);
-                    cashier_events.description.push("Break");
-                    cashier_events.description.push("Lunch");
-                    cashier_events.description.push("Break");
+                    cashier_events.description.push("B");
+                    cashier_events.description.push("LL");
+                    cashier_events.description.push("B");
                     break;
 
                 case 8.25:
@@ -272,8 +272,8 @@
 
                     cashier_events.datetime.push(break1_datetime);
                     cashier_events.datetime.push(lunch_datetime);
-                    cashier_events.description.push("Break");
-                    cashier_events.description.push("Lunch");
+                    cashier_events.description.push("B");
+                    cashier_events.description.push("LL");
                     break;
 
                 case 7.75:
@@ -285,8 +285,8 @@
 
                     cashier_events.datetime.push(break1_datetime);
                     cashier_events.datetime.push(lunch_datetime);
-                    cashier_events.description.push("Break");
-                    cashier_events.description.push("Lunch");
+                    cashier_events.description.push("B");
+                    cashier_events.description.push("LL");
                     break;
 
                 case 7.25:
@@ -295,7 +295,7 @@
                             start_datetime).add(3, 'H').add(15, 'm').toDate();
 
                     cashier_events.datetime.push(lunch_datetime);
-                    cashier_events.description.push("Lunch");
+                    cashier_events.description.push("LL");
                     break;
 
                 case 6.75:
@@ -304,7 +304,7 @@
                             start_datetime).add(3, 'H').add(0, 'm').toDate();
 
                     cashier_events.datetime.push(lunch_datetime);
-                    cashier_events.description.push("Lunch");
+                    cashier_events.description.push("LL");
                     break;
 
                 case 6.25:
@@ -313,7 +313,7 @@
                             start_datetime).add(2, 'H').add(45, 'm').toDate();
 
                     cashier_events.datetime.push(lunch_datetime);
-                    cashier_events.description.push("Lunch");
+                    cashier_events.description.push("LL");
                     break;
 
                 case 5.75:
@@ -321,7 +321,7 @@
                             start_datetime).add(2, 'H').add(45, 'm').toDate();
 
                     cashier_events.datetime.push(break1_datetime);
-                    cashier_events.description.push("Break");
+                    cashier_events.description.push("B");
                     break;
 
                 case 5.5:
@@ -330,7 +330,7 @@
                             start_datetime).add(2, 'H').add(30, 'm').toDate();
 
                     cashier_events.datetime.push(break1_datetime);
-                    cashier_events.description.push("Break");
+                    cashier_events.description.push("B");
                     break;
 
                 case 5.0:
@@ -339,7 +339,7 @@
                             start_datetime).add(2, 'H').add(15, 'm').toDate();
 
                     cashier_events.datetime.push(break1_datetime);
-                    cashier_events.description.push("Break");
+                    cashier_events.description.push("B");
                     break;
 
                 case 4.5:
@@ -348,7 +348,7 @@
                             start_datetime).add(2, 'H').add(0, 'm').toDate();
 
                     cashier_events.datetime.push(break1_datetime);
-                    cashier_events.description.push("Break");
+                    cashier_events.description.push("B");
                     break;
 
                 case 4.0:
@@ -356,7 +356,7 @@
                             start_datetime).add(1, 'H').add(45, 'm').toDate();
 
                     cashier_events.datetime.push(break1_datetime);
-                    cashier_events.description.push("Break");
+                    cashier_events.description.push("B");
                     break;
 
                 default:
@@ -365,7 +365,7 @@
             }// end-of-switch
 
             cashier_events.datetime.push(stop_datetime);
-            cashier_events.description.push("Home");
+            cashier_events.description.push("H");
             
             return cashier_events;
         }
@@ -535,19 +535,26 @@
                     table+= "<tr style='font-weight:bold'>";
                 }*/
 
+                // Remove "AM/PM"
+                cells[0] = cells[0].split(" ")[0];
+
+                // Get the current hour
                 var curr_hour = cells[0].split(":")[0];
+                
                 var next_hour;
 
                 if ((i+1) == data.length) {
                     next_hour = curr_hour;
                 }else {
+                    // if this isn't the final event, peek into the next event's hour
                     next_hour = data[i+1].join(",").split(",")[0].split(":")[0];
                 }
 
                 // create borders that encapsulates events with the same hour
                 if (curr_hour != next_hour) {
                     for(let j=0;j<cells.length;j++){
-                        table+= "<td style='border-bottom: solid 1px #DDD; border-collapse: collapse;'>";
+                        //table+= "<td style='border-bottom: solid 1px #DDD; border-collapse: collapse;'>";
+                        table+= "<td style='border-bottom: solid 1px black; border-collapse: collapse;'>";
                         table+= cells[j];
                         table+= "</td>";
                     }   
@@ -576,7 +583,8 @@
 
                 var style = "<style>";
                 style = style + "table {width: 100%;font: 17px Calibri;}";
-                style = style + "table, th {border: solid 1px #DDD; border-collapse: collapse;";
+                //style = style + "table, th {border: solid 1px #DDD; border-collapse: collapse;";
+                style = style + "table, th {border: solid 1px black; border-collapse: collapse;";
                 style = style + "padding: 12px 10px;text-align: center;}";
                 style = style + "td {padding: 12px 10px;text-align: center;}";
                 style = style + "</style>";
